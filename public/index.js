@@ -113,6 +113,7 @@ function onTrack(ws, rtc, event) {
   var {streams} = event;
   console.log('onTrack', streams);
   if(!streams || streams.length===0) return;
+  if($remote.srcObject) return;
   $remote.srcObject = streams[0];
   $remote.play();
 };
@@ -145,6 +146,7 @@ function setupRtcConnection(ws) {
 
 async function onRtcOffer(ws, req) {
   var {source, sdp} = req;
+  $target.value = source;
   console.log('onRtcOffer', sdp);
   if(rtc!=null) rtc.close();
   rtc = setupRtcConnection(ws);
@@ -152,6 +154,8 @@ async function onRtcOffer(ws, req) {
   await rtc.setRemoteDescription(desc);
   var constraints = {audio: true, video: true};
   var stream = await navigator.mediaDevices.getUserMedia(constraints);
+  $local.srcObject = stream;
+  $local.play();
   for(var track of stream.getTracks())
     rtc.addTrack(track, stream);
   var answer = await rtc.createAnswer();
