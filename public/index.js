@@ -97,10 +97,14 @@ function doHang(ws, end) {
 };
 
 function onNegotiationNeeded(ws, rtc) {
-  rtc.createOffer().then(offer => rtc.setLocalDescription(offer)).then;
-  await rtc.setLocalDescription(offer);
-  console.log('onNegotiationNeeded', rtc.localDescription);
-  send([ws], {type: 'rtc-offer', target: $target.value, sdp: rtc.localDescription});
+  if(rtc.ready) return;
+  rtc.ready = true;
+  rtc.createOffer().then(offer => {
+    return rtc.setLocalDescription(offer);
+  }).then(() => {
+    console.log('onNegotiationNeeded', rtc.localDescription);
+    send([ws], {type: 'rtc-offer', target: $target.value, sdp: rtc.localDescription});
+  });
 };
 
 function onIceCandidate(ws, rtc, event) {
@@ -144,24 +148,28 @@ function setupRtcConnection(ws) {
   return rtc;
 };
 
-async function onRtcOffer(ws, req) {
+function onRtcOffer(ws, req) {
   var {source, sdp} = req;
   $target.value = source;
   console.log('onRtcOffer', sdp);
   if(rtc!=null) rtc.close();
   rtc = setupRtcConnection(ws);
+  rtc.ready = true;
   var desc = new RTCSessionDescription(sdp);
-  await rtc.setRemoteDescription(desc);
-  var constraints = {audio: false, video: true};
-  var stream = await navigator.mediaDevices.getUserMedia(constraints);
-  $local.srcObject = stream;
-  $local.play();
-  for(var track of stream.getTracks())
-    rtc.addTrack(track, stream);
-  var answer = await rtc.createAnswer();
-  await rtc.setLocalDescription(answer);
-  console.log('send rtc-answer', rtc.localDescription);
-  send([ws], {type: 'rtc-answer', target: source, sdp: rtc.localDescription});
+  rtc.setRemoteDescription(desc);
+  var constraints = {audio: true, video: true};
+  navigator.mediaDevices.getUserMedia(constraints).then(stream => {
+    $local.srcObject = stream;
+    $local.play();
+    for(var track of stream.getTracks())
+      rtc.addTrack(track, stream);
+    return rtc.createAnswer()
+  }).then(answer => {
+    return rtc.setLocalDescription(answer);
+  }).then(() => {
+    console.log('send rtc-answer', rtc.localDescription);
+    send([ws], {type: 'rtc-answer', target: source, sdp: rtc.localDescription});
+  });
 };
 
 function onRtcAnswer(ws, req) {
@@ -190,7 +198,7 @@ function doCall(ws) {
   console.log('doCall');
   if(rtc!=null) rtc.close();
   rtc = setupRtcConnection(ws);
-  var constraints = {audio: false, video: true};
+  var constraints = {audio: true, video: true};
   navigator.mediaDevices.getUserMedia(constraints).then(stream => {
     for(var track of stream.getTracks()) {
       console.log('rtcAddTrack', track);
