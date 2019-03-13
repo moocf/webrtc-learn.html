@@ -18,6 +18,7 @@ var $remote = document.getElementById('remote');
 
 function send(conns, req) {
   var msg = JSON.stringify(req);
+  console.log('send', msg);
   for(var conn of conns)
     conn.send(msg);
 };
@@ -156,6 +157,7 @@ async function onRtcAnswer(ws, req) {
 
 async function onRtcCandidate(ws, req) {
   var {candidate} = req;
+  if(candidate==null) return;
   var icecandidate = new RTCIceCandidate(candidate);
   await rtc.addIceCandidate(icecandidate);
 };
@@ -185,6 +187,7 @@ var ws = new WebSocket(WS_URL);
 ws.onopen = () => onOpen(ws);
 ws.onclose = () => onEnd(ws);
 ws.onmessage = (event) => {
+  console.log('recv', event.data);
   var req = JSON.parse(event.data);
   var {type} = req;
   if(type==='close') onClose(ws, req);
