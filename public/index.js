@@ -109,6 +109,7 @@ function onIceCandidate(ws, rtc, event) {
 function onTrack(ws, rtc, event) {
   var {streams} = event;
   $remote.srcObject = streams[0];
+  $remote.start();
 };
 
 function onRemoveTrack(ws, rtc) {
@@ -137,7 +138,7 @@ function setupRtcConnection(ws) {
 async function onRtcOffer(ws, req) {
   var {source, sdp} = req;
   if(rtc!=null) rtc.close();
-  rtc = setupRtcConnection();
+  rtc = setupRtcConnection(ws);
   var desc = new RTCSessionDescription(sdp);
   await rtc.setRemoteDescription(desc);
   var constraints = {audio: true, video: true};
@@ -177,6 +178,7 @@ async function doCall(ws) {
   for(var track of stream.getTracks())
     rtc.addTrack(track, stream);
   $local.srcObject = stream;
+  $local.start();
   }
   catch(e) { console.log(e.name, e.message); }
   $status.value = 'starting call to '+$target.value;

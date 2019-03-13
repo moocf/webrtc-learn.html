@@ -67,7 +67,7 @@ function onMessage(ws, source, req) {
 
 function onDefault(ws, source, req) {
   var {type, target} = req;
-  req.source = {source};
+  req.source = source;
   if(!people.has(target)) return send([ws], {type, source, target});
   send([people.get(target)], req);
   console.log(source+' defaulted to '+target);
