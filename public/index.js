@@ -1,8 +1,12 @@
 var WS_URL = 'wss://test-webrtc.glitch.me';
 
+
 var source = '';
 var $source = document.getElementById('source');
+var $target = document.getElementById('target');
 var $targets = document.getElementById('targets');
+var $text = document.getElementById('text');
+var $texts = document.getElementById('texts');
 var $status = document.getElementById('status');
 
 
@@ -54,6 +58,18 @@ function onRename(ws, req) {
 };
 
 function onMessage(ws, req) {
+  var {id, value} = req;
+  if(value==null) return $status.value = 'failed to message '+id;
+  $texts.value += '\n['+id+']: '+value;
+  $text.value = '';
+};
+
+function doRename(ws) {
+  send([ws], {type: 'rename', id: source, value: $source.value})
+};
+
+function doMessage(ws) {
+  send([ws], {type: 'message', id: $target.value, value: $text.value});
 };
 
 
@@ -70,3 +86,4 @@ ws.onmessage = (event) => {
   else if(type==='rename') onRename(ws, req);
   else if(type==='message') onMessage(ws, req);
 };
+$

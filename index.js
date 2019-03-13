@@ -60,7 +60,7 @@ function onRename(ws, id, req) {
 
 function onMessage(ws, id, req) {
   var target = req.id, {value} = req;
-  if(!people.has(target)) return send([ws], {type: 'message'}); // error
+  if(!people.has(target)) return send([ws], {type: 'message', id: target}); // error
   send([ws, people.get(target)], {type: 'message', id: target, value});
   console.log(id+' messaged to '+target);
 };
