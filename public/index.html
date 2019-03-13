@@ -13,6 +13,7 @@
 
   
 <body>
+  
 <header>
   <h1>WebRTC video</h1>
   <h2>Get video from one client to another.</h2>
@@ -22,6 +23,9 @@
   <p class="bold">Oh hi,</p>
   <p>Tell me your hopes and dreams:</p>
   <form>
+    <input id="username" type="text" placeholder="your name?">
+    <input placeholder="name of client?" list="clients">
+    <datalist id="clients"></datalist>
     <input name="dream" type="text" maxlength="100" placeholder="Dreams!" aria-labelledby="submit-dream">
     <button type="submit" id="submit-dream">Submit Dream</button>
   </form>
