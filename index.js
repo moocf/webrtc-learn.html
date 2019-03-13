@@ -58,10 +58,10 @@ function onRename(id, req) {
 };
 
 function onMessage(id, req) {
-  var to = req.id, {value} = req;
-  if(!people.has(to)) return false;
-  send([ws, people.get(id)], {type: 'message', id, value});
-  console.log(id+' messaged to '+);
+  var target = req.id, {value} = req;
+  if(!people.has(target)) return false;
+  send([people.get(id), people.get(target)], {type: 'message', id: target, value});
+  console.log(id+' messaged to '+target);
 };
 
 wss.on('connection', (ws) => {
@@ -69,7 +69,9 @@ wss.on('connection', (ws) => {
   ws.on('close', () => onClose(ws));
   ws.on('message', (msg) => {
     var req = JSON.parse(msg);
-    
+    var id = Map.keyOf(ws);
+    if(req.type==='rename') onRename(id, req);
+    else if(req.type==='message') onMessage(id, req);
   });
 });
 
