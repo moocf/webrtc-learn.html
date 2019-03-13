@@ -9,10 +9,24 @@ const server = http.createServer(X);
 const wss = new WebSocket.Server({server});
 
 
+var people = new Map();
+
+
 X.get('/', function(req, res) {
   res.sendFile(__dirname + '/public/index.html');
 });
 X.use(express.static('public'));
+
+
+wss.on('connection', (ws) => {
+  console.log('someone just connected');
+  var res = {id: people.size()};
+  ws.on('message', (msg) => {
+    console.log('got a message');
+    var req = JSON.parse(msg);
+    
+  });
+});
 
 
 server.listen(E.PORT||80, () => {
