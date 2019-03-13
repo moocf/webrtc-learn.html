@@ -117,7 +117,6 @@ function onTrack(ws, rtc, event) {
   var {streams} = event;
   console.log('onTrack', streams);
   if(!streams || streams.length===0) return;
-  if($remote.srcObject) return;
   $remote.srcObject = streams[0];
   $remote.play();
 };
