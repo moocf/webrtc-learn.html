@@ -96,8 +96,8 @@ function doHang(ws, end) {
   return false;
 };
 
-async function onNegotiationNeeded(ws, rtc) {
-  var offer = await rtc.createOffer();
+function onNegotiationNeeded(ws, rtc) {
+  rtc.createOffer().then(offer => rtc.setLocalDescription(offer)).then;
   await rtc.setLocalDescription(offer);
   console.log('onNegotiationNeeded', rtc.localDescription);
   send([ws], {type: 'rtc-offer', target: $target.value, sdp: rtc.localDescription});
@@ -122,7 +122,7 @@ function onRemoveTrack(ws, rtc) {
   var stream = $remote.srcObject;
   var tracks = stream.getTracks();
   console.log('onRemoveTrack', tracks.length);
-  if(tracks.length===0) return doHang(ws, rtc);
+  if(tracks.length===0) return doHang(ws);
 };
 
 function onIceConnectionStateChange(ws, rtc) {
@@ -164,19 +164,19 @@ async function onRtcOffer(ws, req) {
   send([ws], {type: 'rtc-answer', target: source, sdp: rtc.localDescription});
 };
 
-async function onRtcAnswer(ws, req) {
+function onRtcAnswer(ws, req) {
   var {source, sdp} = req;
   console.log('onRtcAnswer', sdp);
   var desc = new RTCSessionDescription(sdp);
-  await rtc.setRemoteDescription(desc);
+  rtc.setRemoteDescription(desc);
 };
 
-async function onRtcCandidate(ws, req) {
+function onRtcCandidate(ws, req) {
   var {candidate} = req;
   console.log('onRtcCandidate', candidate);
   if(candidate==null) return;
   var icecandidate = new RTCIceCandidate(candidate);
-  await rtc.addIceCandidate(icecandidate);
+  rtc.addIceCandidate(icecandidate);
 };
 
 function onRtcClose(ws, req) {
@@ -186,22 +186,21 @@ function onRtcClose(ws, req) {
 };
 
 
-async function doCall(ws) {
+function doCall(ws) {
   console.log('doCall');
   if(rtc!=null) rtc.close();
   rtc = setupRtcConnection(ws);
   var constraints = {audio: false, video: true};
-  try {
-  var stream = await navigator.mediaDevices.getUserMedia(constraints);
-  for(var track of stream.getTracks()) {
-    console.log('rtcAddTrack', track);
-    rtc.addTrack(track, stream);
-  }
-  $local.srcObject = stream;
-  $local.play();
-  }
-  catch(e) { console.log(e.name, e.message); }
+  navigator.mediaDevices.getUserMedia(constraints).then(stream => {
+    for(var track of stream.getTracks()) {
+      console.log('rtcAddTrack', track);
+      rtc.addTrack(track, stream);
+    }
+    $local.srcObject = stream;
+    $local.play();
+  });
   $status.value = 'starting call to '+$target.value;
+  return false;
 };
 
 
@@ -224,5 +223,5 @@ ws.onmessage = (event) => {
 };
 $name.onchange = () => doRename(ws);
 $send.onclick = () => doMessage(ws);
-$call.onclick = () => doCall(ws) && false;
-$hang.onclick = () => doHang(ws) && false;
+$call.onclick = () => doCall(ws);
+$hang.onclick = () => doHang(ws);
