@@ -36,7 +36,7 @@ X.use(express.static('public'));
 
 function onConnection(ws) {
   var id = randomId(people);
-  send([ws], {type: 'name', id});
+  send([ws], {type: 'rename', id});
   send([ws], {type: 'connections', ids: Array.from(people.keys())});
   send(people.values(), {type: 'connection', id});
   people.set(id, ws);
@@ -50,9 +50,9 @@ function onClose(ws, id) {
 };
 
 function onRename(ws, id, req) {
-  var {value} = req;
-  if(people.has(value)) return send([ws], {type: 'rename'}); // error
-  send(people.values(), {type: 'rename', id, value});
+  var from = id, {to} = req;
+  if(people.has(to)) return send([ws], {type: 'rename'}); // error
+  send(people.values(), {type: 'rename', from, to});
   people.set(value, ws);
   people.delete(id);
   console.log(id+' rename to '+value);
@@ -60,8 +60,8 @@ function onRename(ws, id, req) {
 
 function onMessage(ws, id, req) {
   var target = req.id, {value} = req;
-  if(!people.has(target)) return send([ws], {type: 'message', id: target}); // error
-  send([ws, people.get(target)], {type: 'message', id: target, value});
+  if(!people.has(target)) return send([ws], {type: 'message', id}); // error
+  send([ws, people.get(target)], {type: 'message', id, value});
   console.log(id+' messaged to '+target);
 };
 
