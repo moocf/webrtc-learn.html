@@ -113,7 +113,7 @@ function onTrack(ws, rtc, event) {
   var {streams} = event;
   console.log('onTrack', streams);
   $remote.srcObject = streams[0];
-  $remote.start();
+  $remote.play();
 };
 
 function onRemoveTrack(ws, rtc) {
@@ -190,7 +190,7 @@ async function doCall(ws) {
   for(var track of stream.getTracks())
     rtc.addTrack(track, stream);
   $local.srcObject = stream;
-  $local.start();
+  $local.play();
   }
   catch(e) { console.log(e.name, e.message); }
   $status.value = 'starting call to '+$target.value;
@@ -201,7 +201,6 @@ var ws = new WebSocket(WS_URL);
 ws.onopen = () => onOpen(ws);
 ws.onclose = () => onEnd(ws);
 ws.onmessage = (event) => {
-  console.log('recv', event.data);
   var req = JSON.parse(event.data);
   var {type} = req;
   if(type==='close') onClose(ws, req);
