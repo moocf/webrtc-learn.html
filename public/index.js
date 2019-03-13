@@ -81,20 +81,32 @@ function doMessage(ws) {
 };
 
 
+async function doRtcOffer(ws, rtc) {
+  var offer = await rtc.createOffer();
+  await rtc.setLocalDescription(offer);
+  send([ws], {type: 'rtc-offer', target: $target.value, sdp: rtc.localDescription});
+};
+
 function setupRtcConnection(ws) {
-  var conn = new RTCPeerConnection({iceServers: ICE_SERVERS});
-  conn.onnegotiationneeded = async () => {
-    var offer = await conn.createOffer();
-    await conn.setLocalDescription(offer);
-    send([ws], {type: 'rtc-offer', target: });
-  };
-  conn.onicecandidate = () => {};
-  conn.ontrack = () => {};
-  conn.onremovetrack = () => {};
-  conn.oniceconnectionstatechange = () => {};
-  conn.onicegatheringstatechange = () => {};
-  conn.onsignallingstatechange = () => {};
-  return conn;
+  var rtc = new RTCPeerConnection({iceServers: ICE_SERVERS});
+  rtc.onnegotiationneeded = () => doRtcOffer(ws, rtc);
+  rtc.onicecandidate = () => {};
+  rtc.ontrack = () => {};
+  rtc.onremovetrack = () => {};
+  rtc.oniceconnectionstatechange = () => {};
+  rtc.onicegatheringstatechange = () => {};
+  rtc.onsignallingstatechange = () => {};
+  return rtc;
+};
+
+async function onRtcOffer(ws, req) {
+  var {sdp} = req;
+  if(rtc!=null) rtc.close();
+  rtc = setupRtcConnection();
+  var desc = new RTCSessionDescription(sdp);
+  await rtc.setRemoteDescription(desc);
+  var constraints = {audio: true, video: true};
+  var stream = await navigator.mediaDevices.getUserMedia(constraints);
 };
 
 
