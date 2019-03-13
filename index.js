@@ -42,25 +42,26 @@ function onConnection(ws) {
   console.log(id+' just connected');
 };
 
-function onClose(ws) {
-  var id = Map.keyOf(people, ws);
+function onClose(id) {
   people.delete(id);
   send(people.values(), {type: 'close', id});
   console.log(id+' just closed');
 };
 
-function onRename(ws, req) {
-  var {id, value} = req;
-  if(people.has(value)) return send([ws], {type: 'rename', value: 'another '+value+''});
+function onRename(id, req) {
+  var value = req.id;
+  if(people.has(value)) return false;
   send(people.values(), {type: 'rename', id, value});
+  people.set(value, people.get(id));
   people.delete(id);
-  people.set(value, ws);
   console.log(id+' rename to '+value);
 };
 
-function onMessage(ws, req) {
-  var {id, value} = req;
-  if(!people.has(id)) return send();
+function onMessage(id, req) {
+  var to = req.id, {value} = req;
+  if(!people.has(to)) return false;
+  send([ws, people.get(id)], {type: 'message', id, value});
+  console.log(id+' messaged to '+);
 };
 
 wss.on('connection', (ws) => {
