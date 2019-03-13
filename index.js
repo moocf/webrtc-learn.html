@@ -20,7 +20,10 @@ X.use(express.static('public'));
 
 wss.on('connection', (ws) => {
   console.log('someone just connected');
-  var res = {id: people.size()};
+  ws.send({id: people.size()});
+  ws.on('close', () => {
+    people.
+  });
   ws.on('message', (msg) => {
     console.log('got a message');
     var req = JSON.parse(msg);
