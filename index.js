@@ -65,6 +65,14 @@ function onMessage(ws, source, req) {
   console.log(source+' messaged to '+target);
 };
 
+function onDefault(ws, source, req) {
+  var {type, target} = req;
+  req.source = {source};
+  if(!people.has(target)) return send([ws], {type, source, target});
+  send([people.get(target)], req);
+  console.log(source+' defaulted to '+target);
+};
+
 wss.on('connection', (ws) => {
   onConnection(ws);
   ws.on('close', () => {
@@ -77,6 +85,7 @@ wss.on('connection', (ws) => {
     var source = Map.keyOf(people, ws);
     if(type==='rename') onRename(ws, source, req);
     else if(type==='message') onMessage(ws, source, req);
+    else onDefault(ws, source, req);
   });
 });
 

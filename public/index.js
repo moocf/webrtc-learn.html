@@ -83,13 +83,14 @@ function doMessage(ws) {
 };
 
 
-function doHang(ws, rtc) {
+function doHang(ws) {
   send([ws], {type: 'rtc-close', target: $target.value});
   for(var track of $remote.srcObject.getTracks())
     track.stop();
-  for(var track of $remote.srcObject.getTracks())
+  for(var track of $local.srcObject.getTracks())
     track.stop();
   rtc.close();
+  rtc = null;
   return false;
 };
 
@@ -115,13 +116,18 @@ function onRemoveTrack(ws, rtc) {
   if(tracks.length===0) return doHang(ws, rtc);
 };
 
+function onIceConnectionStateChange(ws, rtc) {
+  var state = rtc.iceConnectionState;
+  if(/closed|failed|disconnected/.test(state)) doHang(ws);
+};
+
 function setupRtcConnection(ws) {
   var rtc = new RTCPeerConnection({iceServers: ICE_SERVERS});
   rtc.onnegotiationneeded = () => onNegotiationNeeded(ws, rtc);
   rtc.onicecandidate = (event) => onIceCandidate(ws, rtc, event);
   rtc.ontrack = (event) => onTrack(ws, rtc, event);
   rtc.onremovetrack = () => onRemoveTrack(ws, rtc);
-  rtc.oniceconnectionstatechange = () => {};
+  rtc.oniceconnectionstatechange = () => onIceConnectionStateChange(ws, rtc);
   rtc.onicegatheringstatechange = () => {};
   rtc.onsignallingstatechange = () => {};
   return rtc;
