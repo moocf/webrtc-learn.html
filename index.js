@@ -35,48 +35,48 @@ X.use(express.static('public'));
 
 
 function onConnection(ws) {
-  var id = randomId(people);
-  send([ws], {type: 'rename', id});
-  send([ws], {type: 'connections', ids: Array.from(people.keys())});
-  send(people.values(), {type: 'connection', id});
-  people.set(id, ws);
-  console.log(id+' just connected');
+  var source = randomId(people);
+  send([ws], {type: 'rename', source});
+  send([ws], {type: 'connections', targets: Array.from(people.keys())});
+  send(people.values(), {type: 'connection', target: source});
+  people.set(source, ws);
+  console.log(source+' just connected');
 };
 
-function onClose(ws, id) {
-  people.delete(id);
-  send(people.values(), {type: 'close', id});
-  console.log(id+' just closed');
+function onClose(ws, source) {
+  people.delete(source);
+  send(people.values(), {type: 'close', source});
+  console.log(source+' just closed');
 };
 
-function onRename(ws, id, req) {
-  var from = id, {to} = req;
-  if(people.has(to)) return send([ws], {type: 'rename'}); // error
-  send(people.values(), {type: 'rename', from, to});
-  people.set(value, ws);
-  people.delete(id);
-  console.log(id+' rename to '+value);
+function onRename(ws, source, req) {
+  var {target} = req;
+  if(people.has(target)) return send([ws], {type: 'rename'}); // error
+  send(people.values(), {type: 'rename', source, target});
+  people.delete(source);
+  people.set(target, ws);
+  console.log(source+' renamed to '+target);
 };
 
-function onMessage(ws, id, req) {
-  var target = req.id, {value} = req;
-  if(!people.has(target)) return send([ws], {type: 'message', id}); // error
-  send([ws, people.get(target)], {type: 'message', id, value});
-  console.log(id+' messaged to '+target);
+function onMessage(ws, source, req) {
+  var {target, value} = req;
+  if(!people.has(target)) return send([ws], {type: 'message', source, target}); // error
+  send([ws, people.get(target)], {type: 'message', source, target, value});
+  console.log(source+' messaged to '+target);
 };
 
 wss.on('connection', (ws) => {
   onConnection(ws);
   ws.on('close', () => {
-    var id = Map.keyOf(people, ws);
-    onClose(ws, id);
+    var source = Map.keyOf(people, ws);
+    onClose(ws, source);
   });
   ws.on('message', (msg) => {
     var req = JSON.parse(msg);
     var {type} = req;
-    var id = Map.keyOf(people, ws);
-    if(type==='rename') onRename(ws, id, req);
-    else if(type==='message') onMessage(ws, id, req);
+    var source = Map.keyOf(people, ws);
+    if(type==='rename') onRename(ws, source, req);
+    else if(type==='message') onMessage(ws, source, req);
   });
 });
 

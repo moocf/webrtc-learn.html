@@ -1,14 +1,14 @@
 var WS_URL = 'wss://test-webrtc.glitch.me';
 
 
-var source = '';
-var $source = document.getElementById('source');
+var name = '';
+var $name = document.getElementById('name');
 var $target = document.getElementById('target');
 var $targets = document.getElementById('targets');
-var $text = document.getElementById('text');
+var $message = document.getElementById('message');
 var $send = document.getElementById('send');
 var $call = document.getElementById('call');
-var $texts = document.getElementById('texts');
+var $messages = document.getElementById('messages');
 var $status = document.getElementById('status');
 
 
@@ -27,9 +27,9 @@ function onEnd(ws) {
 };
 
 function onClose(ws, req) {
-  var {id} = req;
+  var {name} = req;
   for(var $option of Array.from($targets.childNodes))
-    if($option.value===id) $targets.removeChild($option);
+    if($option.value===name) $targets.removeChild($option);
   $status.value = $targets.childNodes.length+' people connected';
 };
 
@@ -53,9 +53,9 @@ function onConnection(ws, req) {
 
 function onRename(ws, req) {
   var {id, value} = req;
-  if(id==null) return $status.value = $source.value+' not available';
-  if(value==null) return $source.value = source = id;
-  if(id===source) return $status.value = 'you renamed to '+(source = value);
+  if(id==null) return $status.value = $name.value+' not available';
+  if(value==null) return $name.value = name = id;
+  if(id===name) return $status.value = 'you renamed to '+(name = value);
   for(var $option of Array.from($targets.childNodes))
     if($option.value===id) $option.value = value;
 };
@@ -63,17 +63,17 @@ function onRename(ws, req) {
 function onMessage(ws, req) {
   var {id, value} = req;
   if(value==null) return $status.value = 'failed to message '+id;
-  $texts.value += '\n'+(id===source? '->':'')+id+': '+value;
-  if(id===source) $text.value = '';
+  $messages.value += '\n'+(id===name? '->':'')+id+': '+value;
+  if(id===name) $message.value = '';
 };
 
 function doRename(ws) {
-  send([ws], {type: 'rename', id: source, value: $source.value});
+  send([ws], {type: 'rename', id: name, value: $name.value});
   return false;
 };
 
 function doMessage(ws) {
-  send([ws], {type: 'message', id: $target.value, value: $text.value});
+  send([ws], {type: 'message', id: $target.value, value: $message.value});
   return false;
 };
 
@@ -90,5 +90,5 @@ ws.onmessage = (event) => {
   else if(type==='rename') onRename(ws, req);
   else if(type==='message') onMessage(ws, req);
 };
-$source.onchange = () => doRename(ws);
+$name.onchange = () => doRename(ws);
 $send.onclick = () => doMessage(ws);
