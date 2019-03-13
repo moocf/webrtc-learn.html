@@ -1,13 +1,14 @@
 {
   "name": "webrtc-video",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Get video from one client to another.",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
   },
   "dependencies": {
-    "express": "^4.16.4"
+    "express": "^4.16.4",
+    "ws": "^6.2.0"
   },
   "engines": {
     "node": "11.x"
