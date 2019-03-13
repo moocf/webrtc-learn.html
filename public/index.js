@@ -81,15 +81,20 @@ function doMessage(ws) {
 };
 
 
-async function doRtcOffer(ws, rtc) {
+async function onNegotiationNeeded(ws, rtc) {
   var offer = await rtc.createOffer();
   await rtc.setLocalDescription(offer);
   send([ws], {type: 'rtc-offer', target: $target.value, sdp: rtc.localDescription});
 };
 
+function onIceCandidate(ws, rtc, event) {
+  var {candidate} = event;
+  send([ws], {type: 'rtc-candidate', target: $target.value, candidate});
+};
+
 function setupRtcConnection(ws) {
   var rtc = new RTCPeerConnection({iceServers: ICE_SERVERS});
-  rtc.onnegotiationneeded = () => doRtcOffer(ws, rtc);
+  rtc.onnegotiationneeded = () => onNegotiationNeeded(ws, rtc);
   rtc.onicecandidate = () => {};
   rtc.ontrack = () => {};
   rtc.onremovetrack = () => {};
@@ -100,13 +105,24 @@ function setupRtcConnection(ws) {
 };
 
 async function onRtcOffer(ws, req) {
-  var {sdp} = req;
+  var {source, sdp} = req;
   if(rtc!=null) rtc.close();
   rtc = setupRtcConnection();
   var desc = new RTCSessionDescription(sdp);
   await rtc.setRemoteDescription(desc);
   var constraints = {audio: true, video: true};
   var stream = await navigator.mediaDevices.getUserMedia(constraints);
+  for(var track of stream.getTracks())
+    rtc.addTrack(track, stream);
+  var answer = await rtc.createAnswer();
+  await rtc.setLocalDescription(answer);
+  send([ws], {type: 'rtc-answer', target: source, sdp: rtc.localDescription});
+};
+
+async function onRtcCandidate(ws, req) {
+  var {candidate} = req;
+  var icecandidate = new RTCIceCandidate(candiate);
+  await 
 };
 
 
