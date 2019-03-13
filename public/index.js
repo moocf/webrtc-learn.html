@@ -6,6 +6,8 @@ var $source = document.getElementById('source');
 var $target = document.getElementById('target');
 var $targets = document.getElementById('targets');
 var $text = document.getElementById('text');
+var $send = document.getElementById('send');
+var $call = document.getElementById('call');
 var $texts = document.getElementById('texts');
 var $status = document.getElementById('status');
 
@@ -65,11 +67,13 @@ function onMessage(ws, req) {
 };
 
 function doRename(ws) {
-  send([ws], {type: 'rename', id: source, value: $source.value})
+  send([ws], {type: 'rename', id: source, value: $source.value});
+  return false;
 };
 
 function doMessage(ws) {
   send([ws], {type: 'message', id: $target.value, value: $text.value});
+  return false;
 };
 
 
@@ -86,4 +90,5 @@ ws.onmessage = (event) => {
   else if(type==='rename') onRename(ws, req);
   else if(type==='message') onMessage(ws, req);
 };
-$
+$source.onchange = () => doRename(ws);
+$send.onclick = () => doMessage(ws);

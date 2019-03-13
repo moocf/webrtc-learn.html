@@ -74,7 +74,7 @@ wss.on('connection', (ws) => {
   ws.on('message', (msg) => {
     var req = JSON.parse(msg);
     var {type} = req;
-    var id = Map.keyOf(ws);
+    var id = Map.keyOf(people, ws);
     if(type==='rename') onRename(ws, id, req);
     else if(type==='message') onMessage(ws, id, req);
   });
