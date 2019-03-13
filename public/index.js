@@ -86,9 +86,9 @@ function doMessage(ws) {
 
 function doHang(ws, end) {
   if(!end) send([ws], {type: 'rtc-close', target: $target.value});
-  for(var track of $remote.srcObject.getTracks())
+  if($remote.srcObject) for(var track of $remote.srcObject.getTracks())
     track.stop();
-  for(var track of $local.srcObject.getTracks())
+  if($local.srcObject) for(var track of $local.srcObject.getTracks())
     track.stop();
   rtc.close();
   rtc = null;
@@ -112,6 +112,7 @@ function onIceCandidate(ws, rtc, event) {
 function onTrack(ws, rtc, event) {
   var {streams} = event;
   console.log('onTrack', streams);
+  if(!streams || streams.length===0) return;
   $remote.srcObject = streams[0];
   $remote.play();
 };
