@@ -2,6 +2,7 @@ const randomName = require('adj-noun');
 const express = require('express');
 const WebSocket = require('ws');
 const http = require('http');
+require('extra-map');
 
 
 const E = process.env;
@@ -67,7 +68,8 @@ function onMessage(id, req) {
 wss.on('connection', (ws) => {
   onConnection(ws);
   ws.on('close', () => {
-    onClose(ws);
+    var id = Map.keyOf(people, ws);
+    onClose(id);
   });
   ws.on('message', (msg) => {
     var req = JSON.parse(msg);

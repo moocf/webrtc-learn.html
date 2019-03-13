@@ -1,6 +1,7 @@
 var WS_URL = 'wss://test-webrtc.glitch.me';
 
 
+
 function send(conns, req) {
   var msg = JSON.stringify(req);
   for(var conn of conns)
@@ -23,6 +24,13 @@ function onConnection(ws, req) {
 };
 
 function onConnections(ws, req) {
+  var {ids} = req;
+  var $targets = document.getElementById('targets');
+  for(var id of ids) {
+    var $option = document.createElement('option');
+    $option.value = id;
+    $targets.appendChild($option);
+  }
 };
 
 function onRename(ws, req) {
@@ -35,8 +43,8 @@ function onMessage(ws, req) {
 var ws = new WebSocket(WS_URL);
 ws.onopen = () => onOpen(ws);
 ws.onclose = () => onClose(ws);
-ws.onmessage = (msg) => {
-  var req = JSON.parse(msg);
+ws.onmessage = (event) => {
+  var req = JSON.parse(event.data);
   var {type} = req;
   if(type==='connection') onConnection(ws, req);
   else if(type==='connections') onConnections(ws, req);
