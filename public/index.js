@@ -1,5 +1,5 @@
 var WS_URL = 'wss://test-webrtc.glitch.me';
-
+var ICE_SERVERS = [{urls: 'stun:stun.stunprotocol.org'}];
 
 var name = '';
 var rtc = null;
@@ -81,15 +81,30 @@ function doMessage(ws) {
 };
 
 
-function setupRtcConnection() {
-  var conn = new RTCPeerConnection();
-  
+function setupRtcConnection(ws) {
+  var conn = new RTCPeerConnection({iceServers: ICE_SERVERS});
+  conn.onnegotiationneeded = async () => {
+    var offer = await conn.createOffer();
+    await conn.setLocalDescription(offer);
+    send([ws], {type: 'rtc-offer', target: });
+  };
+  conn.onicecandidate = () => {};
+  conn.ontrack = () => {};
+  conn.onremovetrack = () => {};
+  conn.oniceconnectionstatechange = () => {};
+  conn.onicegatheringstatechange = () => {};
+  conn.onsignallingstatechange = () => {};
+  return conn;
 };
 
 
 async function doCall(ws) {
+  if(rtc!=null) rtc.close();
+  rtc = setupRtcConnection(ws);
   var constraints = {audio: true, video: true};
   var stream = await navigator.mediaDevices.getUserMedia(constraints);
+  for(var track of stream.getTracks())
+    rtc.addTrack(track, stream);
 };
 
 function doHang(ws) {
