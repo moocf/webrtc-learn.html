@@ -83,8 +83,8 @@ function doMessage(ws) {
 };
 
 
-function doHang(ws) {
-  send([ws], {type: 'rtc-close', target: $target.value});
+function doHang(ws, end) {
+  if(!end) send([ws], {type: 'rtc-close', target: $target.value});
   for(var track of $remote.srcObject.getTracks())
     track.stop();
   for(var track of $local.srcObject.getTracks())
@@ -154,17 +154,23 @@ async function onRtcCandidate(ws, req) {
   await rtc.addIceCandidate(icecandidate);
 };
 
+function onRtcClose(ws, req) {
+  var {source} = req;
+  doHang(ws, true);
+};
+
 
 async function doCall(ws) {
   if(rtc!=null) rtc.close();
   rtc = setupRtcConnection(ws);
   var constraints = {audio: true, video: true};
-  console.log(constraints);
+  try {
   var stream = await navigator.mediaDevices.getUserMedia(constraints);
-  console.log(stream);
   for(var track of stream.getTracks())
     rtc.addTrack(track, stream);
   $local.srcObject = stream;
+  }
+  catch(e) { console.log(e.name, e.message); }
   $status.value = 'starting call to '+$target.value;
 };
 
@@ -180,6 +186,10 @@ ws.onmessage = (event) => {
   else if(type==='connections') onConnections(ws, req);
   else if(type==='rename') onRename(ws, req);
   else if(type==='message') onMessage(ws, req);
+  else if(type==='rtc-offer') onRtcOffer(ws, req);
+  else if(type==='rtc-candidate') onRtcCandidate(ws, req);
+  else if(type==='rtc-close') onRtcClose(ws, req);
+  esle 
 };
 $name.onchange = () => doRename(ws);
 $send.onclick = () => doMessage(ws);
