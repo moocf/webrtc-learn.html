@@ -1,4 +1,5 @@
 dependencies:
+  adj-noun: 0.1.1
   express: 4.16.4
   extra-map: 1.1.1
   ws: 6.2.0
@@ -12,6 +13,11 @@ packages:
       node: '>= 0.6'
     resolution:
       integrity: sha1-63d99gEXI6OxTopywIBcjoZ0a9I=
+  /adj-noun/0.1.1:
+    dev: false
+    hasBin: true
+    resolution:
+      integrity: sha1-HXVH3Iw1UMztv8aObDHn0DMb/gE=
   /array-flatten/1.1.1:
     dev: false
     resolution:
@@ -384,6 +390,7 @@ registry: 'https://registry.npmjs.org/'
 shrinkwrapMinorVersion: 9
 shrinkwrapVersion: 3
 specifiers:
+  adj-noun: ^0.1.1
   express: ^4.16.4
   extra-map: ^1.1.1
   ws: ^6.2.0

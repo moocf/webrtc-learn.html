@@ -9,7 +9,8 @@
   "dependencies": {
     "express": "^4.16.4",
     "ws": "^6.2.0",
-    "extra-map": "^1.1.1"
+    "extra-map": "^1.1.1",
+    "adj-noun": "^0.1.1"
   },
   "engines": {
     "node": "11.x"
