@@ -18,7 +18,7 @@ var $remote = document.getElementById('remote');
 
 function send(conns, req) {
   var msg = JSON.stringify(req);
-  console.log('send', msg);
+  // console.log('send', msg);
   for(var conn of conns)
     conn.send(msg);
 };
@@ -92,22 +92,26 @@ function doHang(ws, end) {
     track.stop();
   rtc.close();
   rtc = null;
+  $status.value = 'closing call with '+$target.value;
   return false;
 };
 
 async function onNegotiationNeeded(ws, rtc) {
   var offer = await rtc.createOffer();
   await rtc.setLocalDescription(offer);
+  console.log('onNegotiationNeeded', rtc.localDescription);
   send([ws], {type: 'rtc-offer', target: $target.value, sdp: rtc.localDescription});
 };
 
 function onIceCandidate(ws, rtc, event) {
   var {candidate} = event;
+  console.log('onIceCandidate', candidate);
   send([ws], {type: 'rtc-candidate', target: $target.value, candidate});
 };
 
 function onTrack(ws, rtc, event) {
   var {streams} = event;
+  console.log('onTrack', streams);
   $remote.srcObject = streams[0];
   $remote.start();
 };
@@ -115,16 +119,19 @@ function onTrack(ws, rtc, event) {
 function onRemoveTrack(ws, rtc) {
   var stream = $remote.srcObject;
   var tracks = stream.getTracks();
+  console.log('onRemoveTrack', tracks.length);
   if(tracks.length===0) return doHang(ws, rtc);
 };
 
 function onIceConnectionStateChange(ws, rtc) {
   var state = rtc.iceConnectionState;
+  console.log('onIceConnectionStateChange', state);
   if(/closed|failed|disconnected/.test(state)) doHang(ws);
 };
 
 function setupRtcConnection(ws) {
   var rtc = new RTCPeerConnection({iceServers: ICE_SERVERS});
+  console.log('setupRtcConnection', rtc);
   rtc.onnegotiationneeded = () => onNegotiationNeeded(ws, rtc);
   rtc.onicecandidate = (event) => onIceCandidate(ws, rtc, event);
   rtc.ontrack = (event) => onTrack(ws, rtc, event);
@@ -137,6 +144,7 @@ function setupRtcConnection(ws) {
 
 async function onRtcOffer(ws, req) {
   var {source, sdp} = req;
+  console.log('onRtcOffer', sdp);
   if(rtc!=null) rtc.close();
   rtc = setupRtcConnection(ws);
   var desc = new RTCSessionDescription(sdp);
@@ -147,17 +155,20 @@ async function onRtcOffer(ws, req) {
     rtc.addTrack(track, stream);
   var answer = await rtc.createAnswer();
   await rtc.setLocalDescription(answer);
+  console.log('send rtc-answer', rtc.localDescription);
   send([ws], {type: 'rtc-answer', target: source, sdp: rtc.localDescription});
 };
 
 async function onRtcAnswer(ws, req) {
   var {source, sdp} = req;
+  console.log('onRtcAnswer', sdp);
   var desc = new RTCSessionDescription(sdp);
   await rtc.setRemoteDescription(desc);
 };
 
 async function onRtcCandidate(ws, req) {
   var {candidate} = req;
+  console.log('onRtcCandidate', candidate);
   if(candidate==null) return;
   var icecandidate = new RTCIceCandidate(candidate);
   await rtc.addIceCandidate(icecandidate);
@@ -165,6 +176,7 @@ async function onRtcCandidate(ws, req) {
 
 function onRtcClose(ws, req) {
   var {source} = req;
+  console.log('onRtcClose');
   doHang(ws, true);
 };
 
