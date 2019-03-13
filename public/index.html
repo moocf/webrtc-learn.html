@@ -23,11 +23,13 @@
   <p class="bold">Oh hi,</p>
   <p>Tell me your hopes and dreams:</p>
   <form>
-    <input id="username" type="text" placeholder="your name?">
-    <input placeholder="name of client?" list="clients">
-    <datalist id="clients"></datalist>
+    <input id="username" placeholder="your name?">
+    <input id="remote" list="users" placeholder="name of client?">
+    <input id="message" class="p80" placeholder="your message?">
+    <button id="send" type="submit">send</button>
+    <div id="messages"></div>
+    <datalist id="users"></datalist>
     <input name="dream" type="text" maxlength="100" placeholder="Dreams!" aria-labelledby="submit-dream">
-    <button type="submit" id="submit-dream">Submit Dream</button>
   </form>
   <section class="dreams">
     <ul id="dreams"></ul>

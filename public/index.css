@@ -26,14 +26,17 @@ form {
 }
 
 input {
-  display: block;
   margin-bottom: 10px;
   padding: 5px;
-  width: 100%;
   border: 1px solid lightgrey;
   border-radius: 3px;
   font-size: 16px;
 }
+input:not(.p80) {
+  display: block;
+  width: 100%;
+}
+
 
 button {
   font-size: 16px;
@@ -42,6 +45,10 @@ button {
   border: 1px solid grey;
   box-shadow: 2px 2px teal;
   cursor: pointer;
+}
+
+textarea {
+  width: 100%;
 }
 
 button:hover {
