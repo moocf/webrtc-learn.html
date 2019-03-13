@@ -12,6 +12,8 @@ var $call = document.getElementById('call');
 var $hang = document.getElementById('hang');
 var $messages = document.getElementById('messages');
 var $status = document.getElementById('status');
+var $local = document.getElementById('local');
+var $remote = document.getElementById('remote');
 
 
 function send(conns, req) {
@@ -81,6 +83,16 @@ function doMessage(ws) {
 };
 
 
+function doHang(ws, rtc) {
+  send([ws], {type: 'rtc-close', target: $target.value});
+  for(var track of $remote.srcObject.getTracks())
+    track.stop();
+  for(var track of $remote.srcObject.getTracks())
+    track.stop();
+  rtc.close();
+  return false;
+};
+
 async function onNegotiationNeeded(ws, rtc) {
   var offer = await rtc.createOffer();
   await rtc.setLocalDescription(offer);
@@ -92,12 +104,23 @@ function onIceCandidate(ws, rtc, event) {
   send([ws], {type: 'rtc-candidate', target: $target.value, candidate});
 };
 
+function onTrack(ws, rtc, event) {
+  var {streams} = event;
+  $remote.srcObject = streams[0];
+};
+
+function onRemoveTrack(ws, rtc) {
+  var stream = $remote.srcObject;
+  var tracks = stream.getTracks();
+  if(tracks.length===0) return doHang(ws, rtc);
+};
+
 function setupRtcConnection(ws) {
   var rtc = new RTCPeerConnection({iceServers: ICE_SERVERS});
   rtc.onnegotiationneeded = () => onNegotiationNeeded(ws, rtc);
-  rtc.onicecandidate = () => {};
-  rtc.ontrack = () => {};
-  rtc.onremovetrack = () => {};
+  rtc.onicecandidate = (event) => onIceCandidate(ws, rtc, event);
+  rtc.ontrack = (event) => onTrack(ws, rtc, event);
+  rtc.onremovetrack = () => onRemoveTrack(ws, rtc);
   rtc.oniceconnectionstatechange = () => {};
   rtc.onicegatheringstatechange = () => {};
   rtc.onsignallingstatechange = () => {};
@@ -121,8 +144,8 @@ async function onRtcOffer(ws, req) {
 
 async function onRtcCandidate(ws, req) {
   var {candidate} = req;
-  var icecandidate = new RTCIceCandidate(candiate);
-  await 
+  var icecandidate = new RTCIceCandidate(candidate);
+  await rtc.addIceCandidate(icecandidate);
 };
 
 
@@ -133,10 +156,6 @@ async function doCall(ws) {
   var stream = await navigator.mediaDevices.getUserMedia(constraints);
   for(var track of stream.getTracks())
     rtc.addTrack(track, stream);
-};
-
-function doHang(ws) {
-  return false;
 };
 
 
