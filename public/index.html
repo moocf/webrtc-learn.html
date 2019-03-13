@@ -4,42 +4,36 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="A cool thing made with Glitch">
-  <link id="favicon" rel="icon" href="https://glitch.com/edit/favicon-app.ico" type="image/x-icon">
-  <link rel="stylesheet" href="/style.css">
-  <script src="/client.js" defer></script>
-  <title>Welcome to Glitch!</title>
+  <meta name="description" content="Get video from one client to another.">
+  <link id="favicon" rel="icon" href="https://i.imgur.com/ekZi2IV.png" type="image/png">
+  <link rel="stylesheet" href="/index.css">
+  <script src="/index.js" defer></script>
+  <title>WebRTC video</title>
 </head>
+
+  
 <body>
-  <header>
-    <h1>
-      A Dream of the Future
-    </h1>
-  </header>
+<header>
+  <h1>WebRTC video</h1>
+  <h2>Get video from one client to another.</h2>
+</header>
 
-  <main>
-    <p class="bold">Oh hi,</p>
+<main>
+  <p class="bold">Oh hi,</p>
+  <p>Tell me your hopes and dreams:</p>
+  <form>
+    <input name="dream" type="text" maxlength="100" placeholder="Dreams!" aria-labelledby="submit-dream">
+    <button type="submit" id="submit-dream">Submit Dream</button>
+  </form>
+  <section class="dreams">
+    <ul id="dreams"></ul>
+  </section>
+</main>
 
-    <p>Tell me your hopes and dreams:</p>
+<footer>
+  Made with <a href="https://glitch.com">Glitch</a>!
+</footer>
 
-    <form>
-      <input name="dream" type="text" maxlength="100" placeholder="Dreams!" aria-labelledby="submit-dream">
-      <button type="submit" id="submit-dream">Submit Dream</button>
-    </form>
-
-    <section class="dreams">
-      <ul id="dreams"></ul>
-    </section>
-  </main>
-
-  <footer>
-    Made with <a href="https://glitch.com">Glitch</a>!
-  </footer>
-
-  <!-- include the Glitch button to show what the webpage is about and
-        to make it easier for folks to view source and remix -->
-  <div class="glitchButton" style="position:fixed;top:20px;right:20px;"></div>
-  <script src="https://button.glitch.me/button.js"></script>
 
 </body>
 </html>
