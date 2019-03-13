@@ -21,8 +21,8 @@ function send(conns, res) {
 
 function randomId(map) {
   var id = null;
-  for(; id && !map.has(id);)
-    id = randomName();
+  for(; !id || map.has(id);)
+    id = randomName().join('-');
   return id;
 };
 
@@ -34,7 +34,7 @@ X.use(express.static('public'));
 
 
 function onConnection(ws) {
-  var id = randomId();
+  var id = randomId(people);
   send([ws], {type: 'connection', id});
   send([ws], {type: 'connections', ids: people.keys()});
   send(people.values(), {type: 'connection', id});
@@ -66,12 +66,15 @@ function onMessage(id, req) {
 
 wss.on('connection', (ws) => {
   onConnection(ws);
-  ws.on('close', () => onClose(ws));
+  ws.on('close', () => {
+    onClose(ws);
+  });
   ws.on('message', (msg) => {
     var req = JSON.parse(msg);
+    var {type} = req;
     var id = Map.keyOf(ws);
-    if(req.type==='rename') onRename(id, req);
-    else if(req.type==='message') onMessage(id, req);
+    if(type==='rename') onRename(id, req);
+    else if(type==='message') onMessage(id, req);
   });
 });
 
