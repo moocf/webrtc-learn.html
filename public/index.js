@@ -51,11 +51,15 @@ function onConnection(ws, req) {
   $status.value = $targets.childNodes.length+' people connected';
 };
 
+function onName(ws, req) {
+  var {id} = req;
+  $source.value = source = id;
+};
+
 function onRename(ws, req) {
   var {id, value} = req;
   if(id==null) return $status.value = $source.value+' not available';
-  if(value==null) return $source.value = source = id;
-  if(id===source) return 'you renamed to '+value;
+  if(id===source) return $status.value = 'you renamed to '+(source = value);
   for(var $option of Array.from($targets.childNodes))
     if($option.value===id) $option.value = value;
 };
@@ -83,11 +87,11 @@ ws.onopen = () => onOpen(ws);
 ws.onclose = () => onEnd(ws);
 ws.onmessage = (event) => {
   var req = JSON.parse(event.data);
-  console.log(req);
   var {type} = req;
   if(type==='close') onClose(ws, req);
   else if(type==='connection') onConnection(ws, req);
   else if(type==='connections') onConnections(ws, req);
+  else if(type==='name') onName(ws, req);
   else if(type==='rename') onRename(ws, req);
   else if(type==='message') onMessage(ws, req);
 };

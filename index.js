@@ -36,7 +36,7 @@ X.use(express.static('public'));
 
 function onConnection(ws) {
   var id = randomId(people);
-  send([ws], {type: 'rename', id});
+  send([ws], {type: 'name', id});
   send([ws], {type: 'connections', ids: Array.from(people.keys())});
   send(people.values(), {type: 'connection', id});
   people.set(id, ws);
