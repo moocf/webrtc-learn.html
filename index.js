@@ -43,25 +43,25 @@ function onConnection(ws) {
   console.log(id+' just connected');
 };
 
-function onClose(id) {
+function onClose(ws, id) {
   people.delete(id);
   send(people.values(), {type: 'close', id});
   console.log(id+' just closed');
 };
 
-function onRename(id, req) {
+function onRename(ws, id, req) {
   var value = req.id;
-  if(people.has(value)) return false;
+  if(people.has(value)) return send([ws], {type: 'rename', id: null}); // error
   send(people.values(), {type: 'rename', id, value});
-  people.set(value, people.get(id));
+  people.set(value, ws);
   people.delete(id);
   console.log(id+' rename to '+value);
 };
 
-function onMessage(id, req) {
+function onMessage(ws, id, req) {
   var target = req.id, {value} = req;
-  if(!people.has(target)) return false;
-  send([people.get(id), people.get(target)], {type: 'message', id: target, value});
+  if(!people.has(target)) return send([ws], {type: 'message', });
+  send([ws, people.get(target)], {type: 'message', id: target, value});
   console.log(id+' messaged to '+target);
 };
 
@@ -69,14 +69,14 @@ wss.on('connection', (ws) => {
   onConnection(ws);
   ws.on('close', () => {
     var id = Map.keyOf(people, ws);
-    onClose(id);
+    onClose(ws, id);
   });
   ws.on('message', (msg) => {
     var req = JSON.parse(msg);
     var {type} = req;
     var id = Map.keyOf(ws);
-    if(type==='rename') onRename(id, req);
-    else if(type==='message') onMessage(id, req);
+    if(type==='rename') onRename(ws, id, req);
+    else if(type==='message') onMessage(ws, id, req);
   });
 });
 

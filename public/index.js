@@ -1,5 +1,7 @@
 var WS_URL = 'wss://test-webrtc.glitch.me';
 
+var source = '';
+var $source = document.getElementById('source');
 var $targets = document.getElementById('targets');
 var $status = document.getElementById('status');
 
@@ -45,6 +47,7 @@ function onConnection(ws, req) {
 
 function onRename(ws, req) {
   var {id, value} = req;
+  if(value==null) return $source.value = source = id;
   $source.value = id;
   console.log('source set to '+id);
 };
