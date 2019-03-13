@@ -27,53 +27,54 @@ function onEnd(ws) {
 };
 
 function onClose(ws, req) {
-  var {name} = req;
+  var {source} = req;
   for(var $option of Array.from($targets.childNodes))
-    if($option.value===name) $targets.removeChild($option);
+    if($option.value===source) $targets.removeChild($option);
   $status.value = $targets.childNodes.length+' people connected';
 };
 
 function onConnections(ws, req) {
-  var {ids} = req;
-  for(var id of ids) {
+  var {targets} = req;
+  for(var id of targets) {
     var $option = document.createElement('option');
     $option.value = id;
     $targets.appendChild($option);
   }
-  $status.value = ids.length+' people connected';
+  $status.value = $targets.childNodes.length+' people connected';
 };
 
 function onConnection(ws, req) {
-  var {id} = req;
+  var {target} = req;
   var $option = document.createElement('option');
-  $option.value = id;
+  $option.value = target;
   $targets.appendChild($option);
   $status.value = $targets.childNodes.length+' people connected';
 };
 
 function onRename(ws, req) {
-  var {id, value} = req;
-  if(id==null) return $status.value = $name.value+' not available';
-  if(value==null) return $name.value = name = id;
-  if(id===name) return $status.value = 'you renamed to '+(name = value);
+  var {source, target} = req;
+  if(source==null) return $status.value = $name.value+' not available';
+  if(target==null) return $name.value = name = source;
+  if(source===name) return $status.value = 'you renamed to '+(name = target);
   for(var $option of Array.from($targets.childNodes))
-    if($option.value===id) $option.value = value;
+    if($option.value===source) $option.value = target;
 };
 
 function onMessage(ws, req) {
-  var {id, value} = req;
-  if(value==null) return $status.value = 'failed to message '+id;
-  $messages.value += '\n'+(id===name? '->':'')+id+': '+value;
-  if(id===name) $message.value = '';
+  var {source, target, value} = req;
+  if(value==null) return $status.value = 'failed to message '+target;
+  if(source===name) $messages.value += '\n->'+target+': '+value;
+  else $messages.value += '\n'+source+': '+value;
+  if(source===name) $message.value = '';
 };
 
 function doRename(ws) {
-  send([ws], {type: 'rename', id: name, value: $name.value});
+  send([ws], {type: 'rename', source: name, target: $name.value});
   return false;
 };
 
 function doMessage(ws) {
-  send([ws], {type: 'message', id: $target.value, value: $message.value});
+  send([ws], {type: 'message', target: $target.value, value: $message.value});
   return false;
 };
 
