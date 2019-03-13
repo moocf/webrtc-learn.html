@@ -51,7 +51,7 @@ function onClose(ws, id) {
 
 function onRename(ws, id, req) {
   var value = req.id;
-  if(people.has(value)) return send([ws], {type: 'rename', id: null}); // error
+  if(people.has(value)) return send([ws], {type: 'rename'}); // error
   send(people.values(), {type: 'rename', id, value});
   people.set(value, ws);
   people.delete(id);
@@ -60,7 +60,7 @@ function onRename(ws, id, req) {
 
 function onMessage(ws, id, req) {
   var target = req.id, {value} = req;
-  if(!people.has(target)) return send([ws], {type: 'message', });
+  if(!people.has(target)) return send([ws], {type: 'message'}); // error
   send([ws, people.get(target)], {type: 'message', id: target, value});
   console.log(id+' messaged to '+target);
 };

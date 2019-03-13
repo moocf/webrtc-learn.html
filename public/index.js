@@ -47,9 +47,10 @@ function onConnection(ws, req) {
 
 function onRename(ws, req) {
   var {id, value} = req;
-  if(value==null) return $source.value = source = id;
-  $source.value = id;
-  console.log('source set to '+id);
+  if(id==null) return $status.value = $source.value+' not available';
+  if(value==null) return 'you renamed to '+($source.value = source = id);
+  for(var $option of Array.from($targets.childNodes))
+    if($option.value===id) $option.value = value;
 };
 
 function onMessage(ws, req) {
