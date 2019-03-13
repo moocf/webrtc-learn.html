@@ -48,13 +48,14 @@ function onConnection(ws, req) {
   var $option = document.createElement('option');
   $option.value = id;
   $targets.appendChild($option);
-  $status.value = id+' just connected';
+  $status.value = $targets.childNodes.length+' people connected';
 };
 
 function onRename(ws, req) {
   var {id, value} = req;
   if(id==null) return $status.value = $source.value+' not available';
-  if(value==null) return 'you renamed to '+($source.value = source = id);
+  if(value==null) return $source.value = source = id;
+  if(id===source) return 'you renamed to '+value;
   for(var $option of Array.from($targets.childNodes))
     if($option.value===id) $option.value = value;
 };

@@ -50,7 +50,7 @@ function onClose(ws, id) {
 };
 
 function onRename(ws, id, req) {
-  var value = req.id;
+  var {value} = req;
   if(people.has(value)) return send([ws], {type: 'rename'}); // error
   send(people.values(), {type: 'rename', id, value});
   people.set(value, ws);
