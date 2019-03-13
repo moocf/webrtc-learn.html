@@ -13,10 +13,17 @@ const wss = new WebSocket.Server({server});
 var people = new Map();
 
 
-function broadcast(conns, res) {
+function send(conns, res) {
   var msg = JSON.stringify(res);
   for(var conn of conns)
     conn.send(msg);
+};
+
+function randomId(map) {
+  var id = null;
+  for(; id && !map.has(id);)
+    id = randomName();
+  return id;
 };
 
 
@@ -27,16 +34,19 @@ X.use(express.static('public'));
 
 
 wss.on('connection', (ws) => {
-  console.log('someone just connected');
-  var id = 
-  broadcast(people.values(), {type: 'connection', id});
-  ws.send({id: people.size()});
+  var id = randomId();
+  send([ws], {type: 'connection', id});
+  send([ws], {type: 'connections', ids: people.keys()});
+  send(people.values(), {type: 'connection', id});
+  people.set(id, ws);
+  console.log(id+' just connected');
   ws.on('close', () => {
     var id = Map.keyOf(people, ws);
-    broadcast(people.values(), {type: 'close', id});
+    people.delete(id);
+    send(people.values(), {type: 'close', id});
+    console.log(id+' just closed');
   });
   ws.on('message', (msg) => {
-    console.log('got a message');
     var req = JSON.parse(msg);
     
   });
