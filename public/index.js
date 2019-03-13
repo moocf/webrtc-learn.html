@@ -152,7 +152,7 @@ async function onRtcOffer(ws, req) {
   rtc = setupRtcConnection(ws);
   var desc = new RTCSessionDescription(sdp);
   await rtc.setRemoteDescription(desc);
-  var constraints = {audio: true, video: true};
+  var constraints = {audio: false, video: true};
   var stream = await navigator.mediaDevices.getUserMedia(constraints);
   $local.srcObject = stream;
   $local.play();
@@ -187,13 +187,16 @@ function onRtcClose(ws, req) {
 
 
 async function doCall(ws) {
+  console.log('doCall');
   if(rtc!=null) rtc.close();
   rtc = setupRtcConnection(ws);
-  var constraints = {audio: true, video: true};
+  var constraints = {audio: false, video: true};
   try {
   var stream = await navigator.mediaDevices.getUserMedia(constraints);
-  for(var track of stream.getTracks())
+  for(var track of stream.getTracks()) {
+    console.log('rtcAddTrack', track);
     rtc.addTrack(track, stream);
+  }
   $local.srcObject = stream;
   $local.play();
   }
