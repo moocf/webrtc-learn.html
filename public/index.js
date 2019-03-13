@@ -159,9 +159,13 @@ async function doCall(ws) {
   if(rtc!=null) rtc.close();
   rtc = setupRtcConnection(ws);
   var constraints = {audio: true, video: true};
+  console.log(constraints);
   var stream = await navigator.mediaDevices.getUserMedia(constraints);
+  console.log(stream);
   for(var track of stream.getTracks())
     rtc.addTrack(track, stream);
+  $local.srcObject = stream;
+  $status.value = 'starting call to '+$target.value;
 };
 
 
