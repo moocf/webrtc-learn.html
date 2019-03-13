@@ -18,6 +18,13 @@ function onEnd(ws) {
   $status.value = 'connection closed';
 };
 
+function onClose(ws, req) {
+  var {id} = req;
+  for(var $option of Array.from($targets.childNodes))
+    if($option.value===id) $targets.removeChild($option);
+  $status.value = $targets.childNodes.length+' people connected';
+};
+
 function onConnections(ws, req) {
   var {ids} = req;
   for(var id of ids) {
@@ -37,8 +44,7 @@ function onConnection(ws, req) {
 };
 
 function onRename(ws, req) {
-  var {id} = req;
-  var $source = document.getElementById('source');
+  var {id, value} = req;
   $source.value = id;
   console.log('source set to '+id);
 };
@@ -49,12 +55,13 @@ function onMessage(ws, req) {
 
 var ws = new WebSocket(WS_URL);
 ws.onopen = () => onOpen(ws);
-ws.onclose = () => onClose(ws);
+ws.onclose = () => onEnd(ws);
 ws.onmessage = (event) => {
   var req = JSON.parse(event.data);
   console.log(req);
   var {type} = req;
-  if(type==='connection') onConnection(ws, req);
+  if(type==='close') onClose(ws, req);
+  else if(type==='connection') onConnection(ws, req);
   else if(type==='connections') onConnections(ws, req);
   else if(type==='rename') onRename(ws, req);
   else if(type==='message') onMessage(ws, req);
