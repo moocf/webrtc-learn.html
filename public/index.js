@@ -78,6 +78,10 @@ function doMessage(ws) {
   return false;
 };
 
+function doCall(ws) {
+  
+};
+
 
 var ws = new WebSocket(WS_URL);
 ws.onopen = () => onOpen(ws);
@@ -93,3 +97,4 @@ ws.onmessage = (event) => {
 };
 $name.onchange = () => doRename(ws);
 $send.onclick = () => doMessage(ws);
+$call.onclick = () => doCall(ws);
