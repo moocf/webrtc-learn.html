@@ -20,25 +20,22 @@
 </header>
 
 <main>
-  <p class="bold">Oh hi,</p>
-  <p>Tell me your hopes and dreams:</p>
-  <form>
-    <input id="username" placeholder="your name?">
-    <input id="remote" list="users" placeholder="name of client?">
-    <input id="message" class="p80" placeholder="your message?">
+  <form style="width: 33%; float: left;">
+    <input id="source" placeholder="your name?">
+    <input id="target" list="targets" placeholder="name of client?">
+    <input id="text" class="p80" placeholder="your message?">
     <button id="send" type="submit">send</button>
-    <div id="messages"></div>
-    <datalist id="users"></datalist>
-    <input name="dream" type="text" maxlength="100" placeholder="Dreams!" aria-labelledby="submit-dream">
+    <button id="call" type="submit">call</button>
+    <textarea id="texts" rows="20" disabled></textarea>
+    <datalist id="targets"></datalist>
   </form>
-  <section class="dreams">
-    <ul id="dreams"></ul>
-  </section>
-</main>
 
-<footer>
-  Made with <a href="https://glitch.com">Glitch</a>!
-</footer>
+  <video id="local" style="width: 33%; float: left;">
+  </video>
+
+  <video id="remote" style="width: 33%; float: left;">
+  </video>
+</main>
 
 
 </body>
