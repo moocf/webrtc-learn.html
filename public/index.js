@@ -148,6 +148,12 @@ async function onRtcOffer(ws, req) {
   send([ws], {type: 'rtc-answer', target: source, sdp: rtc.localDescription});
 };
 
+async function onRtcAnswer(ws, req) {
+  var {source, sdp} = req;
+  var desc = new RTCSessionDescription(sdp);
+  await rtc.setRemoteDescription(desc);
+};
+
 async function onRtcCandidate(ws, req) {
   var {candidate} = req;
   var icecandidate = new RTCIceCandidate(candidate);
@@ -187,9 +193,10 @@ ws.onmessage = (event) => {
   else if(type==='rename') onRename(ws, req);
   else if(type==='message') onMessage(ws, req);
   else if(type==='rtc-offer') onRtcOffer(ws, req);
+  else if(type==='rtc-answer') onRtcAnswer(ws, req);
   else if(type==='rtc-candidate') onRtcCandidate(ws, req);
   else if(type==='rtc-close') onRtcClose(ws, req);
-  esle 
+  else console.log('unknown request', req);
 };
 $name.onchange = () => doRename(ws);
 $send.onclick = () => doMessage(ws);
