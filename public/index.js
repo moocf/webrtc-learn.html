@@ -2,12 +2,14 @@ var WS_URL = 'wss://test-webrtc.glitch.me';
 
 
 var name = '';
+var rtc = null;
 var $name = document.getElementById('name');
 var $target = document.getElementById('target');
 var $targets = document.getElementById('targets');
 var $message = document.getElementById('message');
 var $send = document.getElementById('send');
 var $call = document.getElementById('call');
+var $hang = document.getElementById('hang');
 var $messages = document.getElementById('messages');
 var $status = document.getElementById('status');
 
@@ -78,8 +80,20 @@ function doMessage(ws) {
   return false;
 };
 
-function doCall(ws) {
+
+function setupRtcConnection() {
+  var conn = new RTCPeerConnection();
   
+};
+
+
+async function doCall(ws) {
+  var constraints = {audio: true, video: true};
+  var stream = await navigator.mediaDevices.getUserMedia(constraints);
+};
+
+function doHang(ws) {
+  return false;
 };
 
 
@@ -97,4 +111,5 @@ ws.onmessage = (event) => {
 };
 $name.onchange = () => doRename(ws);
 $send.onclick = () => doMessage(ws);
-$call.onclick = () => doCall(ws);
+$call.onclick = () => doCall(ws) && false;
+$hang.onclick = () => doHang(ws) && false;
